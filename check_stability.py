@@ -520,26 +520,39 @@ def main():
 
     # if any files_changed are .js files, then find any test files that
     # reference those .js files, and add those to files_changed to be run
-    for support_filename in files_changed:
-        if support_filename[-3:] != ".js":
+    for supportfile_pathname in files_changed:
+        if supportfile_pathname[-3:] != ".js":
             continue
         travis_root = os.path.join(os.path.abspath(os.curdir), "w3c", "web-platform-tests")
-        repo_path = support_filename[len(travis_root):]
-        if len(os.path.splitext(repo_path)[0].split("/")) < 1:
+        repo_path = supportfile_pathname[len(travis_root):]
+        os.path.normpath(repo_path)
+        path_components = repo_path.split(os.sep)[1:]
+        if len(path_components) == 2:
+            # This file is at the root of one of the top-level subdirs.
+            basedir = path_components[0]
+        elif len(path_components) > 2:
+            # This file is not at the root of one of the top-level subdirs
+            # but instead some number of subdirs down. So as the directory
+            # we walk to look for testfiles in, we use the parent directory
+            # of the directory this file is in.
+            basedir = os.path.dirname(os.path.dirname(repo_path))
+        else:
+            # This file is in the repo root, so skip it.
             continue
-        basedir = os.path.splitext(repo_path)[0].split("/")[1]
+        supportfile_name = os.path.basename(supportfile_pathname)
+        # walk basedir looking for files containing supportfile_name
         for root, dirs, fnames in os.walk(os.path.join(travis_root, basedir)):
             for fname in fnames:
-                full_filename = os.path.join(travis_root, root, fname)
+                testfile_name = os.path.join(travis_root, root, fname)
                 # skip any file that's already in files_changed
-                if full_filename in files_changed:
+                if testfile_name in files_changed:
                     continue
-                if not os.path.isfile(full_filename):
+                if not os.path.isfile(testfile_name):
                     continue
-                with open(full_filename, "r") as fh:
+                with open(testfile_name, "r") as fh:
                     file_contents = fh.read()
-                    if repo_path in file_contents:
-                        files_changed.append(full_filename)
+                    if supportfile_name in file_contents:
+                        files_changed.append(testfile_name)
 
     browser = browser_cls(args.gh_token)
 
