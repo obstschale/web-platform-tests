@@ -21,7 +21,7 @@ async_test(t => {
     frame1Body.appendChild(frame0Form);
 
     let resetCalled = false;
-    frame0Form.onreset = ev => {
+    frame0Form.onreset = t.step_func(ev => {
       resetCalled = true;
 
       const functionConstructorInEvRealm = ev.constructor.constructor;
@@ -29,7 +29,7 @@ async_test(t => {
 
       assert_equals(functionConstructorInEvRealm, functionConstructorInFormRealm,
         "the event must be created in the realm of the target");
-    };
+    });
 
     frame0Form.reset();
     assert_true(resetCalled, "The reset event handler must have been called");
