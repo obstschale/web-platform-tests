@@ -524,22 +524,31 @@ def main():
         if supportfile_pathname[-3:] != ".js":
             continue
         travis_root = os.path.join(os.path.abspath(os.curdir), "w3c", "web-platform-tests")
+        logger.info("travis_root is %s\n" % travis_root)
         repo_path = supportfile_pathname[len(travis_root):]
+        logger.info("repo_path is %s\n" % repo_path)
         os.path.normpath(repo_path)
         path_components = repo_path.split(os.sep)[1:]
+        logger.info("path_components is %s\n" % path_components)
         if len(path_components) == 2:
             # This file is at the root of one of the top-level subdirs.
+            logger.info("len(path_components) is 2\n")
             basedir = path_components[0]
+            logger.info("basedir is %s\n" % basedir)
         elif len(path_components) > 2:
             # This file is not at the root of one of the top-level subdirs
             # but instead some number of subdirs down. So as the directory
             # we walk to look for testfiles in, we use the parent directory
             # of the directory this file is in.
             basedir = os.path.dirname(os.path.dirname(repo_path))
+            logger.info("len(path_components) is > 2\n")
+            logger.info("basedir is %s\n" % basedir)
         else:
             # This file is in the repo root, so skip it.
+            logger.info("skipping this file\n")
             continue
         supportfile_name = os.path.basename(supportfile_pathname)
+        logger.info("supportfile_name is %s\n" % supportfile_name)
         # walk basedir looking for files containing supportfile_name
         for root, dirs, fnames in os.walk(os.path.join(travis_root, basedir)):
             for fname in fnames:
