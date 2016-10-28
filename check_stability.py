@@ -560,7 +560,9 @@ def main():
                     continue
                 with open(testfile_name, "r") as fh:
                     file_contents = fh.read()
+                    logger.info("looking for %s in %s\n" % (supportfile_name, testfile_name))
                     if supportfile_name in file_contents:
+                        logger.info("added %s to files_changed" % testfile_name)
                         files_changed.append(testfile_name)
 
     browser = browser_cls(args.gh_token)
