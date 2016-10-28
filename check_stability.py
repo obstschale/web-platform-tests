@@ -518,6 +518,29 @@ def main():
 
     logger.debug("Files changed:\n%s" % "".join(" * %s\n" % item for item in files_changed))
 
+    # if any files_changed are .js files, then find any test files that
+    # reference those .js files, and add those to files_changed to be run
+    for support_filename in files_changed:
+        if support_filename[-3:] != ".js":
+            continue
+        travis_root = os.path.join(os.path.abspath(os.curdir), "w3c", "web-platform-tests")
+        repo_path = support_filename[len(travis_root):]
+        if len(os.path.splitext(repo_path)[0].split("/")) < 1:
+            continue
+        basedir = os.path.splitext(repo_path)[0].split("/")[1]
+        for root, dirs, fnames in os.walk(os.path.join(travis_root, basedir)):
+            for fname in fnames:
+                full_filename = os.path.join(travis_root, root, fname)
+                # skip any file that's already in files_changed
+                if full_filename in files_changed:
+                    continue
+                if not os.path.isfile(full_filename):
+                    continue
+                with open(full_filename, "r") as fh:
+                    file_contents = fh.read()
+                    if repo_path in file_contents:
+                        files_changed.append(full_filename)
+
     browser = browser_cls(args.gh_token)
 
     browser.install()
