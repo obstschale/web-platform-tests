@@ -1,3 +1,4 @@
+// remove this comment
 setup({explicit_done:true});
 onload = function() {
   var encoding = '{{GET[encoding]}}';
