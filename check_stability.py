@@ -534,14 +534,14 @@ def main():
         if len(path_components) == 2:
             # This file is at the root of one of the top-level subdirs.
             logger.info("len(path_components) is 2\n")
-            basedir = path_components[0]
+            basedir = path_components[0][1:]
             logger.info("basedir is %s\n" % basedir)
         elif len(path_components) > 2:
             # This file is not at the root of one of the top-level subdirs
             # but instead some number of subdirs down. So as the directory
             # we walk to look for testfiles in, we use the parent directory
             # of the directory this file is in.
-            basedir = os.path.dirname(os.path.dirname(repo_path))
+            basedir = os.path.dirname(os.path.dirname(repo_path))[1:]
             logger.info("len(path_components) is > 2\n")
             logger.info("basedir is %s\n" % basedir)
         else:
